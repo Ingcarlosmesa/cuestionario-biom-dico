@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario de Mantenimiento de Equipo Biomédico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        #quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .question h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz-container">
+        <h1>Cuestionario de Mantenimiento de Equipo Biomédico</h1>
+        <form id="quizForm">
+            <!-- Las preguntas se insertarán aquí dinámicamente -->
+        </form>
+        <button type="button" onclick="submitQuiz()">Enviar</button>
+        <p id="result"></p>
+    </div>
+
+    <script>
+        // Función para codificar las preguntas y respuestas
+        function encodeData(data) {
+            return btoa(JSON.stringify(data));
+        }
+
+        // Función para decodificar las preguntas y respuestas
+        function decodeData(encodedData) {
+            return JSON.parse(atob(encodedData));
+        }
+
+        // Preguntas y respuestas codificadas
+        const encodedQuizData = encodeData([
+            {
+                question: "¿Cuál es la ley que rige el comportamiento de circuitos eléctricos en serie?",
+                options: ["Ley de Ohm", "Ley de Kirchoff", "Ley de Faraday"],
+                correctAnswer: 0
+            },
+            {
+                question: "¿Qué componente se utiliza para rectificar una señal de corriente alterna?",
+                options: ["Transistor", "Diodo", "Resistor"],
+                correctAnswer: 1
+            },
+            {
+                question: "¿Cuál es el principio de operación de una fuente conmutada?",
+                options: ["Conversión de corriente alterna a corriente directa", "Conmutación rápida entre estados de encendido y apagado", "Acondicionamiento de señales de baja frecuencia"],
+                correctAnswer: 1
+            }
+        ]);
+
+        // Decodificar y mostrar las preguntas
+        const quizData = decodeData(encodedQuizData);
+        const quizForm = document.getElementById('quizForm');
+
+        quizData.forEach((q, index) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question';
+            questionDiv.innerHTML = `
+                <h3>${index + 1}. ${q.question}</h3>
+                ${q.options.map((opt, i) => `
+                    <label>
+                        <input type="radio" name="q${index}" value="${i}">
+                        ${opt}
+                    </label>
+                `).join('')}
+            `;
+            quizForm.appendChild(questionDiv);
+        });
+
+        // Función para enviar el cuestionario
+        function submitQuiz() {
+            let correctAnswers = 0;
+            quizData.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                if (selected && parseInt(selected.value) === q.correctAnswer) {
+                    correctAnswers++;
+                }
+            });
+            document.getElementById('result').textContent = `Obtuviste ${correctAnswers} de ${quizData.length} preguntas correctas.`;
+        }
+
+        // Prevenir la inspección del código
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && (event.key === 'u' || event.key === 'c' || event.key === 'i')) {
+                event.preventDefault();
+            }
+        });
+
+        // Bloquear el cambio de pestaña
+        let warningDisplayed = false;
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && !warningDisplayed) {
+                alert("No puedes cambiar de pestaña durante el cuestionario.");
+                warningDisplayed = true;
+            }
+        });
+
+        // Bloquear el acceso a otras páginas web
+        if (window.top !== window.self) {
+            window.top.location = window.self.location;
+        }
+
+        // Deshabilitar la selección de texto
+        document.onselectstart = function() { return false; }
+    </script>
+</body>
+</html>
